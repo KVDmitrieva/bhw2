@@ -1,0 +1,4 @@
+tqdm>=4.64.1
+torch>=1.13.0
+sentencepiece>=0.1.97
+sacrebleu>=2.3.1
