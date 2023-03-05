@@ -1,4 +1,3 @@
-import typing
 import torch
 
 from torch import nn
@@ -29,8 +28,8 @@ GAMMA = 0.5
 MILESTONE = [4, 8]
 
 
-def init_weights(m):
-    for name, param in m.named_parameters():
+def init_weights(model):
+    for name, param in model.named_parameters():
         nn.init.normal_(param.data, mean=0, std=0.1)
 
 

@@ -1,15 +1,14 @@
 import torch
 import torch.nn.functional as F
 
-from typing import Type, Tuple
 from torch import nn
 
 from dataset import TextDataset
 
 
 class Encoder(nn.Module):
-    def __init__(self, dataset: TextDataset, embed_size: int = 256, hidden_size: int = 256,
-                 rnn_type: Type = nn.RNN, rnn_layers: int = 1, dropout: float = 0.3):
+    def __init__(self, dataset, embed_size=256, hidden_size=256,
+                 rnn_type=nn.RNN, rnn_layers=1, dropout=0.3):
         """
         Module for encoding input sequence
         :param dataset: text data dataset (to extract vocab_size and pad_id)
@@ -37,7 +36,7 @@ class Encoder(nn.Module):
 
         self.linear = nn.Linear(hidden_size * 2, hidden_size)
 
-    def forward(self, indices: torch.Tensor, lengths: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, indices, lengths):
         """
         Compute forward pass through the model and return rnn output and
         combined forward and reverse hidden state from last layer
@@ -59,7 +58,7 @@ class Encoder(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, enc_hid_size: int, dec_hid_size: int):
+    def __init__(self, enc_hid_size, dec_hid_size):
         """
         Attention module to process encoder output and current decoder hidden state
         :param enc_hid_size: dimensionality of encoder hidden state
@@ -70,7 +69,7 @@ class Attention(nn.Module):
         self.attn = nn.Linear((enc_hid_size * 2) + dec_hid_size, dec_hid_size)
         self.linear = nn.Linear(dec_hid_size, 1, bias=False)
 
-    def forward(self, hidden: torch.Tensor, encoder_outputs: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    def forward(self, hidden, encoder_outputs, mask):
         """
         Compute Bahdanau attention (multi-layer perceptron)
         :param hidden: FloatTensor of hidden state of shape (batch_size, decoder_hidden_size)
@@ -92,8 +91,8 @@ class Attention(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, dataset: TextDataset, embed_size: int = 256, hidden_size: int = 256,
-                 rnn_type: Type = nn.RNN, rnn_layers: int = 1, dropout=0.3):
+    def __init__(self, dataset, embed_size=256, hidden_size=256,
+                 rnn_type=nn.RNN, dropout=0.3):
         """
         Module for encoding input sequence
         :param dataset: text data dataset (to extract vocab_size and pad_id)
@@ -115,13 +114,12 @@ class Decoder(nn.Module):
 
         self.rnn = rnn_type(input_size=embed_size + 2 * hidden_size,
                             hidden_size=hidden_size,
-                            #                             num_layers=rnn_layers,
                             batch_first=True
                             )
 
         self.linear = nn.Linear(4 * hidden_size, dataset.vocab_size)
 
-    def forward(self, indices, hidden, encoder_outputs, mask) -> torch.Tensor:
+    def forward(self, indices, hidden, encoder_outputs, mask):
         """
         Compute forward pass through the model and
         return logits for the next token
@@ -152,8 +150,8 @@ class Decoder(nn.Module):
 
 
 class LanguageModel(nn.Module):
-    def __init__(self, dataset_src: TextDataset, dataset_trg: TextDataset, embed_size: int = 256,
-                 hidden_size: int = 256, rnn_type: Type = nn.RNN, rnn_layers: int = 1, dropout: float = 0.3):
+    def __init__(self, dataset_src, dataset_trg, embed_size=256,
+                 hidden_size=256, rnn_type=nn.RNN, rnn_layers=1, dropout=0.3):
         """
         Model for text translation
         :param dataset_src: source text data dataset (to extract vocab_size and max_length)
@@ -172,13 +170,13 @@ class LanguageModel(nn.Module):
         self.max_length = dataset_trg.max_length
 
         self.encoder = Encoder(dataset_src, embed_size, hidden_size, rnn_type, rnn_layers, dropout)
-        self.decoder = Decoder(dataset_trg, embed_size, hidden_size, rnn_type, rnn_layers, dropout)
+        self.decoder = Decoder(dataset_trg, embed_size, hidden_size, rnn_type, dropout)
 
     def create_mask(self, src):
         mask = (src != self.dataset_de.pad_id)
         return mask
 
-    def sample_n_tokens(self, logits: torch.Tensor, num: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def sample_n_tokens(self, logits, num):
         """
         Sample n different tokens
         :param logits: FloatTensor of logits of shape (batch_size, trg_length, vocab_size)
@@ -190,9 +188,8 @@ class LanguageModel(nn.Module):
         vals, inds = F.softmax(logits, dim=1).topk(k=num, dim=1)
         return vals, inds
 
-    def forward(self, src_indices: torch.Tensor, src_lengths: torch.Tensor,
-                trg_indices: torch.Tensor, trg_lengths: torch.Tensor,
-                teacher_forcing_ratio: float = 0.) -> torch.Tensor:
+    def forward(self, src_indices, src_lengths,
+                trg_indices, trg_lengths, teacher_forcing_ratio=0.):
         """
         Compute forward pass through the model and
         return logits for the next token
@@ -224,7 +221,7 @@ class LanguageModel(nn.Module):
 
         return logits
 
-    def postprocess(self, src_text: str, trg_text: str) -> str:
+    def postprocess(self, src_text, trg_text):
         """
         Post-process for model translation
         :param src_text: source text
@@ -251,7 +248,7 @@ class LanguageModel(nn.Module):
         return trg_text
 
     @torch.inference_mode()
-    def inference(self, src_input: str, beam_size: int = 2) -> str:
+    def inference(self, src_input, beam_size=2):
         """
         Translate given text (beam search)
         :param src_input: text to translate
@@ -282,10 +279,8 @@ class LanguageModel(nn.Module):
 
         ended_seqs = []
         ended_seq_probs = torch.tensor([]).to(device)
-        count = 0
 
         while main_candidates.shape[1] < 2 * len_inp[0]:
-            count += 1
             logits, hidden = self.decoder(input_tokens, hidden, enc_out, mask)
             probs, new_tokens = self.sample_n_tokens(logits.squeeze(1), beam_size)
 

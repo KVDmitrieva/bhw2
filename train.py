@@ -1,6 +1,5 @@
 import torch
 
-from typing import List, Optional, Any, Tuple
 from torch import nn
 from torch.utils.data import DataLoader
 from sacrebleu.metrics import BLEU
@@ -9,8 +8,7 @@ from tqdm.notebook import tqdm
 from model import LanguageModel
 
 
-def training_epoch(model: LanguageModel, optimizer: torch.optim.Optimizer, criterion: nn.Module,
-                   loader: DataLoader, tqdm_desc: str) -> float:
+def training_epoch(model, optimizer, criterion, loader, tqdm_desc):
     """
     Process one training epoch
     :param model: language model to train
@@ -42,8 +40,7 @@ def training_epoch(model: LanguageModel, optimizer: torch.optim.Optimizer, crite
 
 
 @torch.no_grad()
-def validation_epoch(model: LanguageModel, criterion: nn.Module,
-                     loader: DataLoader, tqdm_desc: str) -> Tuple[float, float]:
+def validation_epoch(model, criterion, loader, tqdm_desc):
     """
     Process one validation epoch
     :param model: language model to validate
@@ -77,8 +74,7 @@ def validation_epoch(model: LanguageModel, criterion: nn.Module,
     return val_loss, bleu_score
 
 
-def train(model: LanguageModel, optimizer: torch.optim.Optimizer, scheduler: Optional[Any],
-          train_loader: DataLoader, val_loader: DataLoader, num_epochs: int):
+def train(model, optimizer, scheduler, train_loader, val_loader, num_epochs):
     """
     Train language model for several epochs
     :param model: language model to train

@@ -1,7 +1,6 @@
 import os
 import torch
 
-from typing import Union, List, Tuple
 from sentencepiece import SentencePieceTrainer, SentencePieceProcessor
 from torch.utils.data import Dataset
 
