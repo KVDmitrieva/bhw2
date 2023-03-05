@@ -39,7 +39,7 @@ def make_prediction_file(model, source_file, output_file):
 
     with open(output_file, 'w') as file:
         for line in texts:
-            file.write({model.inference(line, 2)} + '\n')
+            file.write(model.inference(line, 2) + '\n')
 
 
 def main():
@@ -67,7 +67,7 @@ def main():
     optimizer = torch.optim.Adam(rnn_model.parameters(), lr=LR)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=MILESTONE, gamma=GAMMA)
 
-    train(rnn_model, optimizer, scheduler, train_loader, valid_loader, NUM_EPOCHS)
+    # train(rnn_model, optimizer, scheduler, train_loader, valid_loader, NUM_EPOCHS)
 
     # make prediction
     file1 = FILE_IN
