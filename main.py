@@ -39,7 +39,7 @@ def make_prediction_file(model, source_file, output_file):
 
     with open(output_file, 'w') as file:
         for line in texts:
-            file.write(f'{model.inference(line, 2)}\n')
+            file.write({model.inference(line, 2)} + '\n')
 
 
 def main():
