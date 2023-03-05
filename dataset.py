@@ -14,9 +14,8 @@ class TextDataset(Dataset):
     TRAIN_VAL_RANDOM_SEED = 42
     VAL_RATIO = 0.05
 
-    def __init__(self, data_file: str, sp_model_prefix: str, vocab_size: int = 2000,
-                 train_size: float = 1.0, normalization_rule_name: str = 'nmt_nfkc_cf',
-                 model_type: str = 'word', max_length: int = 600):
+    def __init__(self, data_file, sp_model_prefix, vocab_size=2000, train_size=1.0,
+                 normalization_rule_name='nmt_nfkc_cf', model_type='word', max_length=600):
         """
         Dataset with texts, supporting BPE tokenizer
         :param data_file: txt file containing texts
@@ -49,7 +48,7 @@ class TextDataset(Dataset):
         self.max_length = max_length
         self.vocab_size = self.sp_model.vocab_size()
 
-    def text2ids(self, texts: Union[str, List[str]]) -> Union[List[int], List[List[int]]]:
+    def text2ids(self, texts):
         """
         Encode a text or list of texts as tokenized indices
         :param texts: text or list of texts to tokenize
@@ -57,7 +56,7 @@ class TextDataset(Dataset):
         """
         return self.sp_model.encode(texts)
 
-    def ids2text(self, ids: Union[torch.Tensor, List[int], List[List[int]]]) -> Union[str, List[str]]:
+    def ids2text(self, ids):
         """
         Decode indices as a text or list of tokens
         :param ids: 1D or 2D list (or torch.Tensor) of indices to decode
@@ -76,7 +75,7 @@ class TextDataset(Dataset):
         """
         return len(self.indices)
 
-    def __getitem__(self, item: int) -> Tuple[torch.Tensor, int]:
+    def __getitem__(self, item):
         """
         Add specials to the index array and pad to maximal length
         :param item: text id
@@ -92,7 +91,7 @@ class TextDataset(Dataset):
 
 
 class DatasetAdapter(Dataset):
-    def __init__(self, first_dataset: TextDataset, second_dataset: TextDataset):
+    def __init__(self, first_dataset, second_dataset):
         """
         Adapter for merging two datasets
         :param first_dataset: first TextDataset to merge
@@ -106,7 +105,7 @@ class DatasetAdapter(Dataset):
     def __len__(self):
         return len(self.first)
 
-    def __getitem__(self, item: int) -> Tuple[torch.Tensor, int, torch.Tensor, int]:
+    def __getitem__(self, item):
         first_item, first_len = self.first[item]
         second_item, second_len = self.second[item]
         return first_item, first_len, second_item, second_len
