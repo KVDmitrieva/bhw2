@@ -8,6 +8,11 @@ from tqdm.notebook import tqdm
 from model import LanguageModel
 
 
+"""
+Взято из 3 маленького дз
+"""
+
+
 def training_epoch(model, optimizer, criterion, loader, tqdm_desc):
     """
     Process one training epoch
