@@ -14,11 +14,12 @@ class TextDataset(Dataset):
     TRAIN_VAL_RANDOM_SEED = 42
     VAL_RATIO = 0.05
 
-    def __init__(self, data_file, sp_model_prefix, vocab_size=2000, train_size=1.0,
+    def __init__(self, data_file, train_files, sp_model_prefix, vocab_size=2000, train_size=1.0,
                  normalization_rule_name='nmt_nfkc_cf', model_type='word', max_length=600):
         """
         Dataset with texts, supporting BPE tokenizer
         :param data_file: txt file containing texts
+        :param train_files: txt files containing texts for tokenizer trainig
         :param sp_model_prefix: path prefix to save tokenizer model
         :param vocab_size: sentencepiece tokenizer vocabulary size
         :param normalization_rule_name: sentencepiece tokenizer normalization rule
@@ -28,7 +29,7 @@ class TextDataset(Dataset):
         if not os.path.isfile(sp_model_prefix + '.model'):
             # train tokenizer if not trained yet
             SentencePieceTrainer.train(
-                input=data_file, vocab_size=vocab_size,
+                input=train_files, vocab_size=vocab_size,
                 model_type=model_type, model_prefix=sp_model_prefix,
                 normalization_rule_name=normalization_rule_name, pad_id=3
             )

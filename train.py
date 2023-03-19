@@ -72,7 +72,7 @@ def validation_epoch(model, criterion, loader, tqdm_desc):
 
         inp_texts, out_texts = loader.dataset.ids2text(indices_de, indices_en)
         texts += out_texts
-        preds += [model.inference(text, 2) for text in inp_texts]
+        preds += [model.inference(text, 3) for text in inp_texts]
 
     bleu_score = BLEU().corpus_score(preds, texts).score
     val_loss /= len(loader.dataset)

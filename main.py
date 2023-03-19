@@ -10,22 +10,22 @@ from train import train
 
 BATCH_SIZE = 128
 TRAIN_SIZE = 1.
-VOCAB_SIZE = 5000
+VOCAB_SIZE = 7000
 
 TRAIN_PATH = './bhw2-data/data/train.de-en.'
 VALID_PATH = './bhw2-data/data/val.de-en.'
 FILE_IN = './bhw2-data/data/test1.de-en.de'
 FILE_OUT = 'test1.de-en.en'
 
-NUM_EPOCHS = 10
+NUM_EPOCHS = 5
 
 EMBED_SIZE = 512
 HIDDEN_SIZE = 512
-RNN_LAYERS = 4
+RNN_LAYERS = 1
 
 LR = 1e-3
-GAMMA = 0.5
-MILESTONE = [4, 8]
+GAMMA = 0.1
+MILESTONE = [3, 7, 10, 13]
 
 
 def init_weights(model):
@@ -44,13 +44,17 @@ def make_prediction_file(model, source_file, output_file):
 
 def main():
     # tokenize text, make loaders
-    train_de = TextDataset(data_file=TRAIN_PATH + 'de', sp_model_prefix='de',
-                           vocab_size=VOCAB_SIZE, train_size=TRAIN_SIZE)
-    train_en = TextDataset(data_file=TRAIN_PATH + 'en', sp_model_prefix='en',
-                           vocab_size=VOCAB_SIZE, train_size=TRAIN_SIZE)
+    train_de_files = [TRAIN_PATH + 'de', VALID_PATH + 'de', FILE_IN]
+    train_en_files = [TRAIN_PATH + 'en', VALID_PATH + 'en']
 
-    valid_de = TextDataset(data_file=VALID_PATH + 'de', sp_model_prefix='de')
-    valid_en = TextDataset(data_file=VALID_PATH + 'en', sp_model_prefix='en')
+    train_de = TextDataset(data_file=TRAIN_PATH + 'de', train_files=train_de_files,
+                           sp_model_prefix='de', vocab_size=VOCAB_SIZE, train_size=TRAIN_SIZE)
+
+    train_en = TextDataset(data_file=TRAIN_PATH + 'en', train_files=train_en_files,
+                           sp_model_prefix='en', vocab_size=VOCAB_SIZE, train_size=TRAIN_SIZE)
+
+    valid_de = TextDataset(data_file=VALID_PATH + 'de', train_files=train_de_files, sp_model_prefix='de')
+    valid_en = TextDataset(data_file=VALID_PATH + 'en', train_files=train_en_files, sp_model_prefix='en')
 
     train_set = DatasetAdapter(train_de, train_en)
     valid_set = DatasetAdapter(valid_de, valid_en)

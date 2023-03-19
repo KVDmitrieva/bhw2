@@ -238,7 +238,7 @@ class LanguageModel(nn.Module):
             words = [words[0]] + [words[i] for i in range(1, len(words)) if words[i] != words[i - 1]]
 
         # fix punctuation
-        if len(words) != 0 and words[-1] not in ['.', '?', '!', '"']:
+        if len(words) != 0 and words[-1] not in ['.', '?', '!', '"', '...']:
             words += src_text[-2]
 
         if '"' not in src_text:
